@@ -4,7 +4,7 @@ import { ENV } from "../config/env.config.js";
 let io;
 
 /**
- * Initialize Socket.IO Server
+ * Initialize Socket.IO Server with JWT authentication
  */
 export const initSocketServer = (httpServer) => {
   io = new Server(httpServer, {
@@ -12,7 +12,7 @@ export const initSocketServer = (httpServer) => {
       origin: ENV.CORS_ORIGIN,
       credentials: true,
     },
-    pingTimeout: 60000, // connection stability
+    pingTimeout: 60000,
   });
 
   console.log("🚀 Socket.IO server initialized");
@@ -24,58 +24,127 @@ export const initSocketServer = (httpServer) => {
     console.log(`🔌 User connected: ${socket.id}`);
 
     /**
-     * Example: Join room
+     * Join organization room for incident updates
+     * Usage: socket.emit('join_org', { organizationId })
      */
-    socket.on("join_room", (roomId) => {
-      if (!roomId) return;
+    socket.on("join_org", ({ organizationId }) => {
+      if (!organizationId) {
+        socket.emit("error", "organizationId required");
+        return;
+      }
 
+      const roomId = `org:${organizationId}`;
       socket.join(roomId);
-      console.log(`📥 Socket ${socket.id} joined room ${roomId}`);
+      console.log(`📥 Socket ${socket.id} joined organization ${organizationId}`);
     });
 
     /**
-     * Example: Leave room
+     * Leave organization room
      */
-    socket.on("leave_room", (roomId) => {
+    socket.on("leave_org", ({ organizationId }) => {
+      if (!organizationId) return;
+      const roomId = `org:${organizationId}`;
       socket.leave(roomId);
-      console.log(`📤 Socket ${socket.id} left room ${roomId}`);
-    });
-
-    /**
-     * Example: Message event
-     */
-    socket.on("send_message", ({ roomId, message }) => {
-      if (!roomId || !message) return;
-
-      io.to(roomId).emit("receive_message", {
-        message,
-        sender: socket.id,
-        timestamp: new Date(),
-      });
+      console.log(`📤 Socket ${socket.id} left organization ${organizationId}`);
     });
 
     /**
      * Disconnect event
      */
     socket.on("disconnect", (reason) => {
-      console.log(`⚠️ Socket disconnected: ${socket.id} | ${reason}`);
+      console.log(`❌ User disconnected: ${socket.id} (${reason})`);
     });
+  });
 
-    /**
-     * Error handling
-     */
-    socket.on("error", (err) => {
-      console.error(`❌ Socket error (${socket.id}):`, err.message);
-    });
+  return io;
+};
+
+/**
+ * Emit incident created event
+ */
+export const emitIncidentCreated = (organizationId, incidentData) => {
+  if (!io) return;
+  const roomId = `org:${organizationId}`;
+  io.to(roomId).emit("incident:created", {
+    incident: incidentData,
+    timestamp: new Date(),
   });
 };
 
 /**
- * Get IO instance
+ * Emit incident updated event
  */
-export const getIO = () => {
-  if (!io) {
-    throw new Error("Socket.IO not initialized");
-  }
-  return io;
+export const emitIncidentUpdated = (organizationId, incidentData) => {
+  if (!io) return;
+  const roomId = `org:${organizationId}`;
+  io.to(roomId).emit("incident:updated", {
+    incident: incidentData,
+    timestamp: new Date(),
+  });
+};
+
+/**
+ * Emit incident status changed
+ */
+export const emitIncidentStatusChanged = (organizationId, incidentId, newStatus) => {
+  if (!io) return;
+  const roomId = `org:${organizationId}`;
+  io.to(roomId).emit("incident:status_changed", {
+    incidentId,
+    status: newStatus,
+    timestamp: new Date(),
+  });
+};
+
+/**
+ * Emit incident assigned
+ */
+export const emitIncidentAssigned = (organizationId, incidentId, assignedUsers) => {
+  if (!io) return;
+  const roomId = `org:${organizationId}`;
+  io.to(roomId).emit("incident:assigned", {
+    incidentId,
+    assignedTo: assignedUsers,
+    timestamp: new Date(),
+  });
+};
+
+/**
+ * Emit error aggregated
+ */
+export const emitErrorAggregated = (organizationId, aggregationData) => {
+  if (!io) return;
+  const roomId = `org:${organizationId}`;
+  io.to(roomId).emit("error:aggregated", {
+    ...aggregationData,
+    timestamp: new Date(),
+  });
+};
+
+/**
+ * Emit error group threshold reached
+ */
+export const emitThresholdReached = (organizationId, groupData) => {
+  if (!io) return;
+  const roomId = `org:${organizationId}`;
+  io.to(roomId).emit("alert:threshold_reached", {
+    ...groupData,
+    timestamp: new Date(),
+  });
+};
+
+/**
+ * Get Socket.IO instance
+ */
+export const getIO = () => io;
+
+export default {
+  initSocketServer,
+  emitIncidentCreated,
+  emitIncidentUpdated,
+  emitIncidentStatusChanged,
+  emitIncidentAssigned,
+  emitErrorAggregated,
+  emitThresholdReached,
+  getIO,
 };

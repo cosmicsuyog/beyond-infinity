@@ -6,6 +6,11 @@ import morgan from "morgan";
 import { ENV } from "./config/env.config.js";
 import apiRouter from "./routes/apiKey.routes.js";
 import authRouter from "./routes/auth.routes.js";
+import errorRouter from "./routes/error.routes.js";
+import incidentRouter from "./routes/incident.routes.js";
+import healthRouter from "./routes/health.routes.js";
+import dashboardRouter from "./routes/dashboard.routes.js";
+import organizationRouter from "./routes/organization.routes.js";
 
 const app = express();
 
@@ -33,6 +38,11 @@ app.use(cookieParser());
 
 app.use("/api/keys", apiRouter);
 app.use("/api/auth", authRouter);
+app.use("/api/errors", errorRouter);
+app.use("/api/incidents", incidentRouter);
+app.use("/api/health", healthRouter);
+app.use("/api/dashboard", dashboardRouter);
+app.use("/api/organizations", organizationRouter);
 
 /**
  * ---------------- Health Check ----------------

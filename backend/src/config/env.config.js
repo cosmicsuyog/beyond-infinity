@@ -65,4 +65,28 @@ export const ENV = Object.freeze({
 
   // ===== GROQ AI =====
   GROQ_API_KEY: requireEnv("GROQ_API_KEY"),
+
+  // ===== Aggregation Engine =====
+  AGGREGATION: {
+    THRESHOLD_LOW: toNumber(
+      optionalEnv("AGGREGATION_THRESHOLD_LOW", 5),
+      "AGGREGATION_THRESHOLD_LOW"
+    ),
+    THRESHOLD_MEDIUM: toNumber(
+      optionalEnv("AGGREGATION_THRESHOLD_MEDIUM", 10),
+      "AGGREGATION_THRESHOLD_MEDIUM"
+    ),
+    THRESHOLD_HIGH: toNumber(
+      optionalEnv("AGGREGATION_THRESHOLD_HIGH", 20),
+      "AGGREGATION_THRESHOLD_HIGH"
+    ),
+    THRESHOLD_CRITICAL: toNumber(
+      optionalEnv("AGGREGATION_THRESHOLD_CRITICAL", 50),
+      "AGGREGATION_THRESHOLD_CRITICAL"
+    ),
+    WINDOW_SECONDS: toNumber(
+      optionalEnv("AGGREGATION_WINDOW_SECONDS", 3600),
+      "AGGREGATION_WINDOW_SECONDS"
+    ), // 1 hour
+  },
 });
