@@ -1,5 +1,5 @@
 import { AlignLeft } from "lucide-react";
-import PageHeader from './PageHeader';
+import PageHeader from '../ui/PageHeader';
 
 const EmptyView = ({ title }) => (
   <>

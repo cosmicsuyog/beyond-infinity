@@ -1,12 +1,18 @@
 import { useState, useEffect } from "react";
-import GoogleFonts from '../components/GoogleFonts';
-import Sidebar from '../components/Sidebar';
-import TopNav from '../components/TopNav';
-import DashboardView from '../components/DashboardView';
-import ApiKeysView from '../components/ApiKeysView';
-import EmptyView from '../components/EmptyView';
+import GoogleFonts from '../components/ui/GoogleFonts';
+import Sidebar from '../components/layout/Sidebar';
+import TopNav from '../components/layout/TopNav';
+import DashboardView from '../components/views/DashboardView';
+import ApiKeysView from '../components/api-keys/ApiKeysView';
+import IncidentsView from '../components/incidents/IncidentsView';
+import TimelineView from '../components/timeline/TimelineView';
+import ServicesView from '../components/services/ServicesView';
+import AiInsightsView from '../components/ai/AiInsightsView';
+import AlertsView from '../components/alerts/AlertsView';
+import SettingsView from '../components/views/SettingsView';
+import UsersView from '../components/views/UsersView';
+import EmptyView from '../components/views/EmptyView';
 import { NAV_ITEMS } from '../dashboard.constants';
-
 
 /* ─── ROOT ─── */
 export default function OpsPulseDashboard() {
@@ -24,7 +30,14 @@ export default function OpsPulseDashboard() {
 
   const renderView = () => {
     if (active === "dashboard") return <DashboardView />;
+    if (active === "incidents") return <IncidentsView />;
+    if (active === "services")  return <ServicesView />;
+    if (active === "ai")        return <AiInsightsView />;
+    if (active === "alerts")    return <AlertsView />;
+    if (active === "timeline")  return <TimelineView />;
     if (active === "apikeys")   return <ApiKeysView />;
+    if (active === "users")     return <UsersView />;
+    if (active === "settings")  return <SettingsView />;
     const label = NAV_ITEMS.find(n => n.id === active)?.label || active;
     return <EmptyView title={label} />;
   };

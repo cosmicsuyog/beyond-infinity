@@ -1,5 +1,5 @@
 import { useDispatch } from 'react-redux';
-import { toggleKeyVisibility, revokeApiKey } from '../dashboard.slice';
+import { toggleKeyVisibility, revokeApiKey } from '../../dashboard.slice';
 
 const ApiKeyCard = ({ apiKey }) => {
   const dispatch = useDispatch();

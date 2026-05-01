@@ -2,7 +2,8 @@ import {
   Activity, X, LayoutDashboard, Clock, Server, Bell, AlignLeft, 
   BarChart2, Sparkles, Users, Key, Settings 
 } from "lucide-react";
-import { NAV_ITEMS } from '../dashboard.constants';
+import { NAV_ITEMS } from '../../dashboard.constants';
+import { useAuth } from '../../../auth/context/AuthContext';
 
 const iconMap = {
   LayoutDashboard,
@@ -25,6 +26,7 @@ const IconComponent = ({ iconName }) => {
 
 const Sidebar = ({ active, setActive, open, onClose }) => {
   const groups = ["MAIN","ANALYTICS","SYSTEM"];
+  const { user } = useAuth();
   return (
     <>
       {/* Mobile overlay */}
@@ -101,12 +103,16 @@ const Sidebar = ({ active, setActive, open, onClose }) => {
             </div>
             <div className="px-3.5 py-3 border-t border-white/[0.07] flex items-center gap-2.5">
               <div className="w-8 h-8 rounded-full bg-white/[0.08] border border-white/20 flex items-center justify-center text-[11px] font-semibold text-white relative flex-shrink-0">
-                AR
+                {user ? (user.name || user.email).substring(0, 2).toUpperCase() : "AR"}
                 <span className="absolute bottom-0.5 right-0.5 w-2 h-2 rounded-full bg-green-400 border-[1.5px] border-[#07080f]" />
               </div>
-              <div>
-                <div className="font-barlow text-[11px] tracking-[0.1em] uppercase text-white">Aarav Singh</div>
-                <div className="font-barlow text-[9px] tracking-[0.16em] uppercase text-white/25">Admin</div>
+              <div className="flex-1 overflow-hidden">
+                <div className="font-barlow text-[11px] tracking-[0.1em] uppercase text-white truncate">
+                  {user ? user.name || user.email : "Aarav Singh"}
+                </div>
+                <div className="font-barlow text-[9px] tracking-[0.16em] uppercase text-white/25 truncate">
+                  {user?.role || "Admin"}
+                </div>
               </div>
             </div>
           </div>

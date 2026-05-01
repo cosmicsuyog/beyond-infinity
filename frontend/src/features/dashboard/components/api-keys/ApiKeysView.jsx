@@ -1,27 +1,47 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Plus, Eye, EyeOff } from "lucide-react";
-import { INITIAL_KEYS } from '../dashboard.constants';
-import PageHeader from './PageHeader';
-import GhostBtn from './GhostBtn';
-import Badge from './Badge';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchApiKeys, createApiKey, revokeApiKeyThunk } from '../../dashboard.slice';
+import PageHeader from '../ui/PageHeader';
+import GhostBtn from '../ui/GhostBtn';
+import Badge from '../ui/Badge';
 
 const maskKey = (k) => k.substring(0, 10) + "••••••" + k.slice(-4);
 
 const ApiKeysView = () => {
-  const [keys, setKeys] = useState(INITIAL_KEYS);
+  const dispatch = useDispatch();
+  const { apiKeys, isLoading, isCreatingKey, error } = useSelector((state) => state.dashboard);
   const [showCreate, setShowCreate] = useState(false);
   const [newName, setNewName] = useState("");
   const [newPerm, setNewPerm] = useState("full");
-  const [nextId, setNextId] = useState(5);
 
-  const toggleVisible = (id) => setKeys(ks => ks.map(k => k.id === id && k.active ? {...k, visible:!k.visible} : k));
-  const revokeKey = (id) => setKeys(ks => ks.map(k => k.id === id ? {...k, active:false, visible:false} : k));
+  useEffect(() => {
+    dispatch(fetchApiKeys());
+  }, [dispatch]);
+
+  const toggleVisible = (id) => {
+    // This is handled locally since it's UI state only
+    const key = apiKeys.find(k => k.id === id);
+    if (key && key.active) {
+      // Dispatch local action or handle in slice
+    }
+  };
+
+  const revokeKey = (id) => {
+    dispatch(revokeApiKeyThunk(id));
+  };
+
   const createKey = () => {
     if (!newName.trim()) return;
-    const chars = "abcdefghijklmnopqrstuvwxyz0123456789";
-    const raw = "ops_k" + nextId + "_" + Array.from({length:28}, () => chars[Math.floor(Math.random()*chars.length)]).join("");
-    setKeys(ks => [{ id:nextId, name:newName.trim(), key:raw, perm:newPerm, created:"Just now", lastUsed:"Never", active:true, visible:true }, ...ks]);
-    setNextId(n => n+1); setNewName(""); setShowCreate(false);
+    dispatch(createApiKey({ name: newName.trim(), permissions: newPerm }))
+      .unwrap()
+      .then(() => {
+        setNewName("");
+        setShowCreate(false);
+      })
+      .catch((error) => {
+        console.error('Failed to create API key:', error);
+      });
   };
 
   const permLabel = { full:"Full Access", read:"Read Only", write:"Write Only" };
@@ -29,10 +49,18 @@ const ApiKeysView = () => {
   return (
     <>
       <PageHeader title="API KEYS" subtitle="Manage authentication keys for API access">
-        <GhostBtn onClick={() => setShowCreate(s => !s)}>
-          <Plus size={10} className="inline mr-1.5 align-middle" />GENERATE KEY
+        <GhostBtn onClick={() => setShowCreate(s => !s)} disabled={isCreatingKey}>
+          <Plus size={10} className="inline mr-1.5 align-middle" />
+          {isCreatingKey ? 'CREATING...' : 'GENERATE KEY'}
         </GhostBtn>
       </PageHeader>
+
+      {/* Error Display */}
+      {error && (
+        <div className="bg-red-400/10 border border-red-400/30 rounded-lg p-4 mb-4">
+          <p className="text-red-400 text-sm">{error}</p>
+        </div>
+      )}
 
       {showCreate && (
         <div className="bg-[#0b0d18] border border-white/[0.07] rounded-lg p-4 mb-3.5 fade-up">
@@ -46,6 +74,7 @@ const ApiKeysView = () => {
                 onChange={e => setNewName(e.target.value)}
                 placeholder="e.g. Production App"
                 onKeyDown={e => e.key === "Enter" && createKey()}
+                disabled={isCreatingKey}
               />
             </div>
             <div>
@@ -54,6 +83,7 @@ const ApiKeysView = () => {
                 className="w-full bg-[#0b0d18] border border-white/15 rounded-md px-3 py-2 font-barlow text-[11px] tracking-[0.1em] text-white outline-none"
                 value={newPerm}
                 onChange={e => setNewPerm(e.target.value)}
+                disabled={isCreatingKey}
               >
                 <option value="full">Full Access</option>
                 <option value="read">Read Only</option>
@@ -61,26 +91,39 @@ const ApiKeysView = () => {
               </select>
             </div>
             <div className="flex gap-2">
-              <GhostBtn onClick={createKey}>CREATE</GhostBtn>
-              <GhostBtn onClick={() => setShowCreate(false)}>CANCEL</GhostBtn>
+              <GhostBtn onClick={createKey} disabled={isCreatingKey}>
+                {isCreatingKey ? 'CREATING...' : 'CREATE'}
+              </GhostBtn>
+              <GhostBtn onClick={() => setShowCreate(false)} disabled={isCreatingKey}>
+                CANCEL
+              </GhostBtn>
             </div>
           </div>
         </div>
       )}
 
+      {/* Loading State */}
+      {isLoading && (
+        <div className="text-center py-8">
+          <div className="w-8 h-8 border-2 border-brand-offwhite/20 border-t-brand-offwhite rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-brand-offwhite/60 font-barlow">Loading API keys...</p>
+        </div>
+      )}
+
       {/* Desktop table */}
-      <div className="bg-[#0b0d18] border border-white/[0.07] rounded-lg overflow-hidden fade-up fade-up-1">
-        <div className="hidden lg:block overflow-x-auto">
-          <table className="w-full border-collapse">
-            <thead>
-              <tr>
-                {["NAME","API KEY","PERMISSIONS","CREATED","LAST USED","STATUS","ACTIONS"].map(h => (
-                  <th key={h} className="font-barlow text-[8.5px] tracking-[0.2em] uppercase text-white/30 px-4 py-2.5 text-left border-b border-white/[0.07] bg-white/[0.02] font-normal">{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {keys.map(k => (
+      {!isLoading && (
+        <div className="bg-[#0b0d18] border border-white/[0.07] rounded-lg overflow-hidden fade-up fade-up-1">
+          <div className="hidden lg:block overflow-x-auto">
+            <table className="w-full border-collapse">
+              <thead>
+                <tr>
+                  {["NAME","API KEY","PERMISSIONS","CREATED","LAST USED","STATUS","ACTIONS"].map(h => (
+                    <th key={h} className="font-barlow text-[8.5px] tracking-[0.2em] uppercase text-white/30 px-4 py-2.5 text-left border-b border-white/[0.07] bg-white/[0.02] font-normal">{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {apiKeys.map(k => (
                 <tr key={k.id} style={{ opacity: k.active ? 1 : 0.45 }} className="hover:bg-white/[0.025] transition-colors">
                   <td className="px-4 py-3">
                     <div className="font-barlow text-[11.5px] tracking-[0.1em] uppercase text-white">{k.name}</div>
@@ -120,7 +163,7 @@ const ApiKeysView = () => {
 
         {/* Mobile / tablet card layout */}
         <div className="lg:hidden divide-y divide-white/[0.04]">
-          {keys.map(k => (
+          {apiKeys.map(k => (
             <div key={k.id} className="p-4" style={{ opacity: k.active ? 1 : 0.5 }}>
               <div className="flex items-start justify-between mb-2">
                 <div>
@@ -153,6 +196,7 @@ const ApiKeysView = () => {
           ))}
         </div>
       </div>
+      )}
     </>
   );
 };

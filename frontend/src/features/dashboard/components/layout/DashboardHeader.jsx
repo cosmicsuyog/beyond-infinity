@@ -1,6 +1,6 @@
 import { useSelector, useDispatch } from 'react-redux';
-import { setActiveView } from '../dashboard.slice';
-import { DASHBOARD_VIEWS } from '../dashboard.constants';
+import { setActiveView } from '../../dashboard.slice';
+import { DASHBOARD_VIEWS } from '../../dashboard.constants';
 
 const DashboardHeader = () => {
   const dispatch = useDispatch();
