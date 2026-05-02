@@ -38,7 +38,7 @@ const TERMINAL_LINES = [
 const TERM_TRIGGERS = [0, 0.14, 0.28, 0.44, 0.60, 0.76, 0.92];
 
 /* ── WAVEFORM CANVAS ── */
-const WaveCanvas = ({ progress, phaseRef }) => {
+const WaveCanvas = ({ phaseRef }) => {
   const canvasRef = useRef(null);
   const phaseAngle = useRef(0);
   const animRef = useRef(null);
@@ -307,7 +307,7 @@ export default function OpsPulseLoader({ onComplete, duration = DURATION_MS }) {
         }}
       >
         {/* WAVEFORM */}
-        <WaveCanvas progress={pct / 100} phaseRef={phaseRef} />
+        <WaveCanvas phaseRef={phaseRef} />
         <Scanlines />
 
         {/* LOGO */}
