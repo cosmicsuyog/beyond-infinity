@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Bell, Check, Clock, AlertCircle, Info, Zap, X } from "lucide-react";
+import { Bell, Check, AlertCircle, Info, Zap } from "lucide-react";
 import { notificationService } from "../../service/notification.service";
 
 const NotificationDropdown = () => {

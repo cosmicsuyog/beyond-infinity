@@ -10,9 +10,9 @@ export function useTimeline() {
     incidentId: "",
   });
 
-  const fetchTimeline = useCallback(async () => {
+  const fetchTimeline = useCallback(async (showLoading = true) => {
     try {
-      setLoading(true);
+      if (showLoading) setLoading(true);
       setError(null);
       // Clean up empty filters
       const activeFilters = Object.fromEntries(
@@ -32,7 +32,7 @@ export function useTimeline() {
   }, [filters]);
 
   useEffect(() => {
-    fetchTimeline();
+    fetchTimeline(false);
   }, [fetchTimeline]);
 
   const createEvent = async (eventData) => {

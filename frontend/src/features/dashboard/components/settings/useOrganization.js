@@ -11,10 +11,10 @@ export function useOrganization() {
 
   const orgId = user?.organizationId || user?.orgId;
 
-  const fetchOrganization = useCallback(async () => {
+  const fetchOrganization = useCallback(async (showLoading = true) => {
     if (!orgId) return;
     try {
-      setLoading(true);
+      if (showLoading) setLoading(true);
       setError(null);
       const response = await organizationService.getOrganization(orgId);
       setOrganization(response.data || response);
@@ -26,7 +26,7 @@ export function useOrganization() {
   }, [orgId]);
 
   useEffect(() => {
-    fetchOrganization();
+    fetchOrganization(false);
   }, [fetchOrganization]);
 
   const updateOrg = async (data) => {

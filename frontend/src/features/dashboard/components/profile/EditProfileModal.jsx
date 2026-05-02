@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { X, User, Briefcase, Image as ImageIcon, Check, Loader2, Mail } from "lucide-react";
+import { X, User, Briefcase, Image as ImageIcon, Check, Loader2 } from "lucide-react";
 import GhostBtn from "../ui/GhostBtn";
 import { useAuth } from "../../../auth/context/AuthContext";
 

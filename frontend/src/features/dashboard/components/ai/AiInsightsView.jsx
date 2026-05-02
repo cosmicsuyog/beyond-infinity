@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { 
-  Sparkles, Brain, Zap, Search, AlertTriangle, 
-  CheckCircle, MessageSquare, BarChart3, Bot
+  Sparkles, Brain, Zap, Search, 
+  CheckCircle, MessageSquare, BarChart3, Bot,
+  RefreshCw
 } from "lucide-react";
 import PageHeader from "../ui/PageHeader";
 import GhostBtn from "../ui/GhostBtn";
@@ -216,8 +217,5 @@ const AiInsightsView = () => {
     </>
   );
 };
-
-// Re-importing missing icons
-import { RefreshCw } from "lucide-react";
 
 export default AiInsightsView;

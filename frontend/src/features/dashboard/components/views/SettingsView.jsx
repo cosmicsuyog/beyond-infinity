@@ -5,11 +5,9 @@ import {
   Trash2,
   Eye,
   EyeOff,
-  AlertCircle,
-  CheckCircle,
   Building,
   Mail,
-  FileText
+  FileText,
 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -29,24 +27,33 @@ const Skeleton = ({ w = "w-24", h = "h-3" }) => (
 const SettingsView = () => {
   const dispatch = useDispatch();
   const { apiKeys, isCreatingKey } = useSelector((state) => state.dashboard);
-  const { organization, loading: loadingOrg, updating: updatingOrg, updateOrg } = useOrganization();
+  const {
+    organization,
+    loading: loadingOrg,
+    updating: updatingOrg,
+    updateOrg,
+  } = useOrganization();
 
   const [activeTab, setActiveTab] = useState("organization");
   const [newKeyName, setNewKeyName] = useState("");
   const [orgForm, setOrgForm] = useState({
     name: "",
     description: "",
-    contactEmail: ""
+    contactEmail: "",
   });
 
   // Sync orgForm when organization data loads
   useEffect(() => {
     if (organization) {
-      setOrgForm({
-        name: organization.name || "",
-        description: organization.description || "",
-        contactEmail: organization.contactEmail || ""
-      });
+      const syncForm = async () => {
+        await Promise.resolve();
+        setOrgForm({
+          name: organization.name || "",
+          description: organization.description || "",
+          contactEmail: organization.contactEmail || "",
+        });
+      };
+      syncForm();
     }
   }, [organization]);
 
@@ -71,7 +78,11 @@ const SettingsView = () => {
   };
 
   const handleRevokeKey = (keyId) => {
-    if (confirm("Are you sure you want to revoke this API key? This action cannot be undone.")) {
+    if (
+      confirm(
+        "Are you sure you want to revoke this API key? This action cannot be undone."
+      )
+    ) {
       dispatch(revokeApiKeyThunk(keyId));
     }
   };
@@ -95,7 +106,6 @@ const SettingsView = () => {
   ];
 
   const activeKeys = apiKeys.filter((k) => k.active);
-  const inactiveKeys = apiKeys.filter((k) => !k.active);
 
   return (
     <div className="space-y-6">
@@ -129,7 +139,7 @@ const SettingsView = () => {
             <h3 className="font-bebas text-[15px] tracking-[0.14em] text-white mb-6">
               ORGANIZATION PROFILE
             </h3>
-            
+
             {loadingOrg ? (
               <div className="space-y-4">
                 <Skeleton w="w-full" h="h-10" />
@@ -146,7 +156,9 @@ const SettingsView = () => {
                     <input
                       type="text"
                       value={orgForm.name}
-                      onChange={(e) => setOrgForm({ ...orgForm, name: e.target.value })}
+                      onChange={(e) =>
+                        setOrgForm({ ...orgForm, name: e.target.value })
+                      }
                       className="w-full bg-white/[0.05] border border-white/[0.1] rounded px-3 py-2.5 font-barlow text-[11px] text-white focus:outline-none focus:border-white/20 transition-colors"
                       placeholder="Enter organization name"
                     />
@@ -158,7 +170,9 @@ const SettingsView = () => {
                     <input
                       type="email"
                       value={orgForm.contactEmail}
-                      onChange={(e) => setOrgForm({ ...orgForm, contactEmail: e.target.value })}
+                      onChange={(e) =>
+                        setOrgForm({ ...orgForm, contactEmail: e.target.value })
+                      }
                       className="w-full bg-white/[0.05] border border-white/[0.1] rounded px-3 py-2.5 font-barlow text-[11px] text-white focus:outline-none focus:border-white/20 transition-colors"
                       placeholder="billing@company.com"
                     />
@@ -171,7 +185,9 @@ const SettingsView = () => {
                   </label>
                   <textarea
                     value={orgForm.description}
-                    onChange={(e) => setOrgForm({ ...orgForm, description: e.target.value })}
+                    onChange={(e) =>
+                      setOrgForm({ ...orgForm, description: e.target.value })
+                    }
                     rows={3}
                     className="w-full bg-white/[0.05] border border-white/[0.1] rounded px-3 py-2.5 font-barlow text-[11px] text-white focus:outline-none focus:border-white/20 transition-colors resize-none"
                     placeholder="Brief description of your organization"
@@ -187,9 +203,11 @@ const SettingsView = () => {
               </form>
             )}
           </div>
-          
+
           <div className="bg-white/[0.02] border border-white/[0.07] border-dashed rounded-lg p-6 flex flex-col items-center text-center">
-            <div className="font-bebas text-[14px] tracking-[0.14em] text-white/30 mb-2">Organization ID</div>
+            <div className="font-bebas text-[14px] tracking-[0.14em] text-white/30 mb-2">
+              Organization ID
+            </div>
             <div className="font-mono text-[11px] text-white/60 bg-white/[0.05] px-4 py-2 rounded border border-white/[0.1]">
               {organization?._id || "---"}
             </div>
@@ -268,7 +286,9 @@ const SettingsView = () => {
                           {key.name}
                         </div>
                         <div className="font-mono text-[9px] text-white/40 truncate">
-                          {key.visible ? key.key : `••••••••${key.key.slice(-8)}`}
+                          {key.visible
+                            ? key.key
+                            : `••••••••${key.key.slice(-8)}`}
                         </div>
                         <div className="font-barlow text-[8px] tracking-[0.1em] text-white/30 mt-1">
                           Created: {key.created} • Last used: {key.lastUsed}
@@ -280,7 +300,11 @@ const SettingsView = () => {
                           className="text-white/40 hover:text-white/70 transition p-1"
                           title={key.visible ? "Hide" : "Show"}
                         >
-                          {key.visible ? <EyeOff size={14} /> : <Eye size={14} />}
+                          {key.visible ? (
+                            <EyeOff size={14} />
+                          ) : (
+                            <Eye size={14} />
+                          )}
                         </button>
                         <button
                           onClick={() => handleRevokeKey(key.id)}
@@ -351,8 +375,12 @@ const SettingsView = () => {
           </h3>
           <div className="flex items-center justify-between p-4 bg-white/[0.02] border border-white/[0.04] rounded">
             <div>
-              <div className="font-barlow text-[11px] tracking-[0.08em] text-white">Dark Mode</div>
-              <div className="font-barlow text-[9px] text-white/40">Use dark theme by default</div>
+              <div className="font-barlow text-[11px] tracking-[0.08em] text-white">
+                Dark Mode
+              </div>
+              <div className="font-barlow text-[9px] text-white/40">
+                Use dark theme by default
+              </div>
             </div>
             <input
               type="checkbox"
@@ -367,24 +395,41 @@ const SettingsView = () => {
       {/* ── INTEGRATIONS TAB ──────────────────────────────── */}
       {activeTab === "integrations" && (
         <div className="bg-[#0b0d18] border border-white/[0.07] hover:border-white/[0.12] rounded-lg p-6 transition-colors fade-in">
-          <h3 className="font-bebas text-[15px] tracking-[0.14em] text-white mb-6">INTEGRATIONS</h3>
+          <h3 className="font-bebas text-[15px] tracking-[0.14em] text-white mb-6">
+            INTEGRATIONS
+          </h3>
           <div className="space-y-4">
             {[
               { name: "Slack", status: "connected", icon: "💬" },
               { name: "PagerDuty", status: "not_connected", icon: "🚨" },
               { name: "GitHub", status: "not_connected", icon: "🐙" },
             ].map((integration) => (
-              <div key={integration.name} className="flex items-center justify-between p-4 bg-white/[0.02] border border-white/[0.04] rounded">
+              <div
+                key={integration.name}
+                className="flex items-center justify-between p-4 bg-white/[0.02] border border-white/[0.04] rounded"
+              >
                 <div className="flex items-center gap-3">
                   <span className="text-xl">{integration.icon}</span>
                   <div>
-                    <div className="font-barlow text-[11px] tracking-[0.08em] text-white">{integration.name}</div>
-                    <div className={`font-barlow text-[9px] ${integration.status === "connected" ? "text-green-400" : "text-white/40"}`}>
-                      {integration.status === "connected" ? "✓ Connected" : "Not connected"}
+                    <div className="font-barlow text-[11px] tracking-[0.08em] text-white">
+                      {integration.name}
+                    </div>
+                    <div
+                      className={`font-barlow text-[9px] ${
+                        integration.status === "connected"
+                          ? "text-green-400"
+                          : "text-white/40"
+                      }`}
+                    >
+                      {integration.status === "connected"
+                        ? "✓ Connected"
+                        : "Not connected"}
                     </div>
                   </div>
                 </div>
-                <GhostBtn>{integration.status === "connected" ? "MANAGE" : "CONNECT"}</GhostBtn>
+                <GhostBtn>
+                  {integration.status === "connected" ? "MANAGE" : "CONNECT"}
+                </GhostBtn>
               </div>
             ))}
           </div>

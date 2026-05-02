@@ -6,9 +6,9 @@ export function useServices() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const fetchServices = useCallback(async () => {
+  const fetchServices = useCallback(async (showLoading = true) => {
     try {
-      setLoading(true);
+      if (showLoading) setLoading(true);
       setError(null);
       const response = await healthService.getAllHealth();
       const data = response.data || response;
@@ -22,7 +22,8 @@ export function useServices() {
   }, []);
 
   useEffect(() => {
-    fetchServices();
+    // Avoid sync setState in effect. Initial loading is already true.
+    fetchServices(false);
   }, [fetchServices]);
 
   const getHealthHistory = async (serviceName, hours = 24) => {

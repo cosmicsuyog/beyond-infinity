@@ -11,9 +11,9 @@ export function useAlerts() {
     limit: 50
   });
 
-  const fetchAlerts = useCallback(async () => {
+  const fetchAlerts = useCallback(async (showLoading = true) => {
     try {
-      setLoading(true);
+      if (showLoading) setLoading(true);
       setError(null);
       
       const activeFilters = Object.fromEntries(
@@ -32,7 +32,10 @@ export function useAlerts() {
   }, [filters]);
 
   useEffect(() => {
-    fetchAlerts();
+    const timer = setTimeout(() => {
+      fetchAlerts();
+    }, 0);
+    return () => clearTimeout(timer);
   }, [fetchAlerts]);
 
   const updateFilters = (newFilters) => {

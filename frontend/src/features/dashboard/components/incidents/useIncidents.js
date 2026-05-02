@@ -10,10 +10,10 @@ export function useIncidents(config = { skipFetch: false }) {
     severity: "",
   });
 
-  const fetchIncidents = useCallback(async () => {
+  const fetchIncidents = useCallback(async (showLoading = true) => {
     if (config.skipFetch) return;
     try {
-      setLoading(true);
+      if (showLoading) setLoading(true);
       setError(null);
       // Clean up empty filters
       const activeFilters = Object.fromEntries(
@@ -34,7 +34,7 @@ export function useIncidents(config = { skipFetch: false }) {
 
   useEffect(() => {
     if (!config.skipFetch) {
-      fetchIncidents();
+      fetchIncidents(false);
     }
   }, [fetchIncidents, config.skipFetch]);
 

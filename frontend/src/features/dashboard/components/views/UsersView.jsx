@@ -1,7 +1,13 @@
-import { useState, useEffect } from "react";
-import { 
-  Users, Search, Filter, Plus, MoreVertical, Shield, 
-  Mail, Clock, CheckCircle, XCircle, Trash2, Edit2, Loader2
+import { useState, useEffect, useCallback } from "react";
+import {
+  Users,
+  Search,
+  Plus,
+  Shield,
+  Clock,
+  Trash2,
+  Edit2,
+  Loader2,
 } from "lucide-react";
 import PageHeader from "../ui/PageHeader";
 import GhostBtn from "../ui/GhostBtn";
@@ -14,12 +20,8 @@ const UsersView = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterRole, setFilterRole] = useState("all");
 
-  useEffect(() => {
-    fetchUsers();
-  }, []);
-
-  const fetchUsers = async () => {
-    setLoading(true);
+  const fetchUsers = useCallback(async (showLoading = true) => {
+    if (showLoading) setLoading(true);
     try {
       const response = await userService.getUsers();
       if (response.success) {
@@ -30,18 +32,11 @@ const UsersView = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const handleUpdateRole = async (userId, newRole) => {
-    try {
-      const response = await userService.updateUser(userId, { role: newRole });
-      if (response.success) {
-        fetchUsers();
-      }
-    } catch (error) {
-      console.error("Failed to update role:", error);
-    }
-  };
+  useEffect(() => {
+    fetchUsers(false);
+  }, [fetchUsers]);
 
   const handleDeleteUser = async (userId) => {
     if (window.confirm("Are you sure you want to deactivate this user?")) {
@@ -56,9 +51,9 @@ const UsersView = () => {
     }
   };
 
-  const filteredUsers = users.filter(u => {
-    const matchesSearch = 
-      u.name?.toLowerCase().includes(searchTerm.toLowerCase()) || 
+  const filteredUsers = users.filter((u) => {
+    const matchesSearch =
+      u.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       u.email?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesRole = filterRole === "all" || u.role === filterRole;
     return matchesSearch && matchesRole;
@@ -66,12 +61,15 @@ const UsersView = () => {
 
   return (
     <div className="space-y-5 fade-in">
-      <PageHeader 
-        title="USER MANAGEMENT" 
+      <PageHeader
+        title="USER MANAGEMENT"
         subtitle="Manage organization members, roles, and access permissions"
       >
         <GhostBtn onClick={fetchUsers}>
-          <Loader2 size={12} className={`mr-2 ${loading ? "animate-spin" : ""}`} />
+          <Loader2
+            size={12}
+            className={`mr-2 ${loading ? "animate-spin" : ""}`}
+          />
           REFRESH
         </GhostBtn>
         <button className="bg-white text-black px-4 py-2 rounded font-bebas text-[14px] tracking-[0.1em] hover:bg-white/90 transition flex items-center gap-2">
@@ -82,8 +80,11 @@ const UsersView = () => {
       {/* Filters Bar */}
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="flex-1 relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30" size={14} />
-          <input 
+          <Search
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30"
+            size={14}
+          />
+          <input
             type="text"
             placeholder="Search by name or email..."
             value={searchTerm}
@@ -92,7 +93,7 @@ const UsersView = () => {
           />
         </div>
         <div className="flex gap-2">
-          <select 
+          <select
             value={filterRole}
             onChange={(e) => setFilterRole(e.target.value)}
             className="bg-white/[0.03] border border-white/10 rounded-md px-3 py-2 font-barlow text-[11px] text-white/60 focus:outline-none"
@@ -111,16 +112,26 @@ const UsersView = () => {
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="border-b border-white/[0.07] bg-white/[0.01]">
-                <th className="px-5 py-4 font-bebas text-[12px] tracking-[0.2em] text-white/40 uppercase">User</th>
-                <th className="px-5 py-4 font-bebas text-[12px] tracking-[0.2em] text-white/40 uppercase">Role</th>
-                <th className="px-5 py-4 font-bebas text-[12px] tracking-[0.2em] text-white/40 uppercase">Status</th>
-                <th className="px-5 py-4 font-bebas text-[12px] tracking-[0.2em] text-white/40 uppercase">Last Active</th>
-                <th className="px-5 py-4 font-bebas text-[12px] tracking-[0.2em] text-white/40 uppercase text-right">Actions</th>
+                <th className="px-5 py-4 font-bebas text-[12px] tracking-[0.2em] text-white/40 uppercase">
+                  User
+                </th>
+                <th className="px-5 py-4 font-bebas text-[12px] tracking-[0.2em] text-white/40 uppercase">
+                  Role
+                </th>
+                <th className="px-5 py-4 font-bebas text-[12px] tracking-[0.2em] text-white/40 uppercase">
+                  Status
+                </th>
+                <th className="px-5 py-4 font-bebas text-[12px] tracking-[0.2em] text-white/40 uppercase">
+                  Last Active
+                </th>
+                <th className="px-5 py-4 font-bebas text-[12px] tracking-[0.2em] text-white/40 uppercase text-right">
+                  Actions
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/[0.04]">
               {loading ? (
-                [1,2,3,4,5].map(i => (
+                [1, 2, 3, 4, 5].map((i) => (
                   <tr key={i} className="animate-pulse">
                     <td colSpan="5" className="px-5 py-6">
                       <div className="flex items-center gap-3">
@@ -135,12 +146,19 @@ const UsersView = () => {
                 ))
               ) : filteredUsers.length > 0 ? (
                 filteredUsers.map((u) => (
-                  <tr key={u._id} className="hover:bg-white/[0.01] transition-colors group">
+                  <tr
+                    key={u._id}
+                    className="hover:bg-white/[0.01] transition-colors group"
+                  >
                     <td className="px-5 py-4">
                       <div className="flex items-center gap-3">
                         <div className="w-9 h-9 rounded-full bg-white/[0.08] border border-white/10 flex items-center justify-center text-[12px] font-semibold text-white overflow-hidden">
                           {u.avatar ? (
-                            <img src={u.avatar} alt={u.name} className="w-full h-full object-cover" />
+                            <img
+                              src={u.avatar}
+                              alt={u.name}
+                              className="w-full h-full object-cover"
+                            />
                           ) : (
                             (u.name || u.email).substring(0, 2).toUpperCase()
                           )}
@@ -157,14 +175,27 @@ const UsersView = () => {
                     </td>
                     <td className="px-5 py-4">
                       <div className="flex items-center gap-2">
-                        <Shield size={12} className={u.role === 'admin' ? "text-red-400" : "text-white/30"} />
-                        <span className={`font-barlow text-[11px] uppercase tracking-wider ${u.role === 'admin' ? "text-red-400" : "text-white/60"}`}>
+                        <Shield
+                          size={12}
+                          className={
+                            u.role === "admin"
+                              ? "text-red-400"
+                              : "text-white/30"
+                          }
+                        />
+                        <span
+                          className={`font-barlow text-[11px] uppercase tracking-wider ${
+                            u.role === "admin"
+                              ? "text-red-400"
+                              : "text-white/60"
+                          }`}
+                        >
                           {u.role}
                         </span>
                       </div>
                     </td>
                     <td className="px-5 py-4">
-                      <Badge 
+                      <Badge
                         variant={u.isActive !== false ? "success" : "neutral"}
                         className="text-[9px] px-2 py-0.5"
                       >
@@ -174,17 +205,22 @@ const UsersView = () => {
                     <td className="px-5 py-4">
                       <div className="flex items-center gap-2 font-barlow text-[11px] text-white/40">
                         <Clock size={12} />
-                        {u.lastLogin ? new Date(u.lastLogin).toLocaleDateString() : "Never"}
+                        {u.lastLogin
+                          ? new Date(u.lastLogin).toLocaleDateString()
+                          : "Never"}
                       </div>
                     </td>
                     <td className="px-5 py-4 text-right">
                       <div className="flex items-center justify-end gap-2">
-                        <button className="p-2 hover:bg-white/[0.08] rounded-md transition text-white/40 hover:text-white" title="Edit User">
+                        <button
+                          className="p-2 hover:bg-white/[0.08] rounded-md transition text-white/40 hover:text-white"
+                          title="Edit User"
+                        >
                           <Edit2 size={14} />
                         </button>
-                        <button 
+                        <button
                           onClick={() => handleDeleteUser(u._id)}
-                          className="p-2 hover:bg-red-500/10 rounded-md transition text-white/40 hover:text-red-400" 
+                          className="p-2 hover:bg-red-500/10 rounded-md transition text-white/40 hover:text-red-400"
                           title="Deactivate User"
                         >
                           <Trash2 size={14} />
@@ -197,8 +233,12 @@ const UsersView = () => {
                 <tr>
                   <td colSpan="5" className="px-5 py-20 text-center">
                     <Users size={40} className="mx-auto text-white/10 mb-4" />
-                    <div className="font-bebas text-[18px] text-white/30 tracking-widest uppercase">No users found</div>
-                    <p className="font-barlow text-[11px] text-white/20 uppercase mt-1 tracking-wider">Try adjusting your search or filters</p>
+                    <div className="font-bebas text-[18px] text-white/30 tracking-widest uppercase">
+                      No users found
+                    </div>
+                    <p className="font-barlow text-[11px] text-white/20 uppercase mt-1 tracking-wider">
+                      Try adjusting your search or filters
+                    </p>
                   </td>
                 </tr>
               )}

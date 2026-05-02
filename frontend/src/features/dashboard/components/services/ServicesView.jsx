@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { 
   RefreshCw, AlertTriangle, Monitor, Database, Shield, 
-  CreditCard, Activity, Cpu, HardDrive 
+  CreditCard, Activity, Cpu, CheckCircle, Zap
 } from "lucide-react";
 import PageHeader from "../ui/PageHeader";
 import GhostBtn from "../ui/GhostBtn";
@@ -185,8 +185,5 @@ const ServicesView = () => {
     </>
   );
 };
-
-// Re-importing missing icons
-import { CheckCircle, Zap } from "lucide-react";
 
 export default ServicesView;

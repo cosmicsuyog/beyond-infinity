@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import {
   LineChart,
   Line,
@@ -11,21 +11,11 @@ import {
   ResponsiveContainer,
   Legend,
 } from "recharts";
-import {
-  TrendingUp,
-  TrendingDown,
-  AlertCircle,
-  CheckCircle,
-} from "lucide-react";
+import { TrendingUp, TrendingDown } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  fetchErrorStats,
-  fetchErrors,
-  fetchDashboardStats,
-} from "../../dashboard.slice";
+import { fetchDashboardStats } from "../../dashboard.slice";
 import PageHeader from "../ui/PageHeader";
 import Badge from "../ui/Badge";
-import Sparkline from "../ui/Sparkline";
 import CustomTooltip from "../ui/CustomTooltip";
 
 const Skeleton = ({ w = "w-24", h = "h-3" }) => (
@@ -37,60 +27,60 @@ const AnalyticsView = () => {
   const [timeRange, setTimeRange] = useState("7d");
   const [chartType, setChartType] = useState("line");
 
-  const { stats, errors, errorStats, loadingStats, loadingErrors } =
-    useSelector((state) => state.dashboard);
+  const { loadingStats } = useSelector((state) => state.dashboard);
 
   useEffect(() => {
     dispatch(fetchDashboardStats());
-    dispatch(fetchErrorStats());
-    dispatch(fetchErrors({ limit: 100, hours: 168 })); // 7 days
   }, [dispatch]);
 
-  // Generate analytics data from error stats
-  const analyticsData = [
-    {
-      period: "Mon",
-      errors: Math.floor(Math.random() * 50),
-      resolved: Math.floor(Math.random() * 40),
-      avgResponse: 125 + Math.floor(Math.random() * 50),
-    },
-    {
-      period: "Tue",
-      errors: Math.floor(Math.random() * 55),
-      resolved: Math.floor(Math.random() * 45),
-      avgResponse: 115 + Math.floor(Math.random() * 50),
-    },
-    {
-      period: "Wed",
-      errors: Math.floor(Math.random() * 48),
-      resolved: Math.floor(Math.random() * 42),
-      avgResponse: 120 + Math.floor(Math.random() * 50),
-    },
-    {
-      period: "Thu",
-      errors: Math.floor(Math.random() * 60),
-      resolved: Math.floor(Math.random() * 48),
-      avgResponse: 130 + Math.floor(Math.random() * 50),
-    },
-    {
-      period: "Fri",
-      errors: Math.floor(Math.random() * 52),
-      resolved: Math.floor(Math.random() * 44),
-      avgResponse: 118 + Math.floor(Math.random() * 50),
-    },
-    {
-      period: "Sat",
-      errors: Math.floor(Math.random() * 40),
-      resolved: Math.floor(Math.random() * 35),
-      avgResponse: 110 + Math.floor(Math.random() * 50),
-    },
-    {
-      period: "Sun",
-      errors: Math.floor(Math.random() * 38),
-      resolved: Math.floor(Math.random() * 33),
-      avgResponse: 105 + Math.floor(Math.random() * 50),
-    },
-  ];
+  // Generate analytics data - memoized to avoid re-computing on every render
+  const analyticsData = useMemo(
+    () => [
+      {
+        period: "Mon",
+        errors: Math.floor(Math.random() * 50),
+        resolved: Math.floor(Math.random() * 40),
+        avgResponse: 125 + Math.floor(Math.random() * 50),
+      },
+      {
+        period: "Tue",
+        errors: Math.floor(Math.random() * 55),
+        resolved: Math.floor(Math.random() * 45),
+        avgResponse: 115 + Math.floor(Math.random() * 50),
+      },
+      {
+        period: "Wed",
+        errors: Math.floor(Math.random() * 48),
+        resolved: Math.floor(Math.random() * 42),
+        avgResponse: 120 + Math.floor(Math.random() * 50),
+      },
+      {
+        period: "Thu",
+        errors: Math.floor(Math.random() * 60),
+        resolved: Math.floor(Math.random() * 48),
+        avgResponse: 130 + Math.floor(Math.random() * 50),
+      },
+      {
+        period: "Fri",
+        errors: Math.floor(Math.random() * 52),
+        resolved: Math.floor(Math.random() * 44),
+        avgResponse: 118 + Math.floor(Math.random() * 50),
+      },
+      {
+        period: "Sat",
+        errors: Math.floor(Math.random() * 40),
+        resolved: Math.floor(Math.random() * 35),
+        avgResponse: 110 + Math.floor(Math.random() * 50),
+      },
+      {
+        period: "Sun",
+        errors: Math.floor(Math.random() * 38),
+        resolved: Math.floor(Math.random() * 33),
+        avgResponse: 105 + Math.floor(Math.random() * 50),
+      },
+    ],
+    []
+  );
 
   // Endpoint breakdown
   const endpointData = [

@@ -7,7 +7,7 @@ const SearchOverlay = ({ isOpen, onClose }) => {
   const inputRef = useRef(null);
   
   // Get data from Redux for search
-  const { incidents, healthData, stats } = useSelector((state) => state.dashboard);
+  const { incidents, healthData } = useSelector((state) => state.dashboard);
   
   useEffect(() => {
     if (isOpen) {
